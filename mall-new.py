@@ -1,6 +1,7 @@
 
 import pymysql.cursors
 from pymysql import connect
+connection=pymysql.connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 class GUEST_OP(object):
     """顾客购物类"""
@@ -68,18 +69,48 @@ class GUEST_OP(object):
         self.cursor.close()
 
     def login(self):
-        """顾客登陆"""
         try:
-            c_name = input('Input your name：')
-            password = input(input('Input password：'))
-            sql = 'select cid from customer where c_name= %s and password= %s'
-            self.cursor.execute(sql,[c_name,password])
-            id = self.cursor.fetchall()
-            self.function(id)
-            
-        except:
-            print('wrong')
-
+            cursor = connection.cursor()
+            c_name=input('input your name: ')
+            password= input('input your password: ')
+            sql= "SELECT password FROM customer WHERE c_name= %s;"
+            cursor.execute(sql,c_name)
+            result = cursor.fetchall()
+            data = result[0]
+            pw = data['password']
+        except: Exception: print("Fail")
+        cursor.close()
+        try:
+            cursor2 = connection.cursor()
+            sql2 = "SELECT COUNT(*) FROM customer WHERE c_name= %s;"
+            cursor2.execute(sql2, c_name)
+            result2 = cursor2.fetchall()
+            data2 = result2[0]
+            count = data2['COUNT(*)']
+            print(count)
+            if count == 1:
+                if pw == password:
+                    print('login in successfully')
+                    print('----------------------------')
+                    try:
+                        cursor3 = connection.cursor()
+                        sqlid = "SELECT cid FROM customer WHERE c_name= %s AND password= %s;"
+                        cursor3.execute(sqlid, (c_name, password))
+                        result = cursor3.fetchall()
+                        data = result[0]
+                        id = data['cid']
+                        self.function(id)
+                    except:
+                        Exception: print("Fail")
+                        cursor3.close()
+                else:
+                    print('Incorrect in name OR password')
+                    main()
+            else:
+                print('this user not exit')
+                main()
+        except: Exception: print("Fail")
+        cursor2.close()
     def userinformation(self,id):
         try:
             sql = "SELECT cid,c_name,addr,tel FROM customer WHERE cid= %s;"
