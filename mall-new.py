@@ -111,6 +111,7 @@ class GUEST_OP(object):
                 main()
         except: Exception: print("Fail")
         cursor2.close()
+
     def userinformation(self,id):
         try:
             sql = "SELECT cid,c_name,addr,tel FROM customer WHERE cid= %s;"
@@ -124,17 +125,18 @@ class GUEST_OP(object):
             self.usercenter(id)
             self.cursor.close()
 
-    def changepw(self,id):
+    '''def changepw(self,id):
         newpassword = input("please enter your new password: \n")
         try:
             sql = "UPDATE customer SET password= %s WHERE cid=%s"
             self.cursor.execute(sql, (newpassword, id))
             print('Password update successful')
             self.conn.commit()
+            main()
         except:
             Exception: print("Fail")
             self.usercenter(id)
-        self.cursor.close()
+        self.cursor.close()'''
     def changetel(self,id):
         newtel = int(input("please enter your new telephone: \n"))
         try:
@@ -142,7 +144,7 @@ class GUEST_OP(object):
             self.cursor.execute(sql, (newtel, id))
             print('Password update successful')
             self.conn.commit()
-            self.usercenter(id)
+            main()
         except:
             Exception: print("Fail")
             self.usercenter(id)
@@ -154,7 +156,7 @@ class GUEST_OP(object):
             self.cursor.execute(sql, (newaddr, id))
             print('Password update successful')
             self.conn.commit()
-            self.usercenter(id)
+            main()
         except:
             Exception: print("Fail")
             self.usercenter(id)
@@ -170,7 +172,7 @@ class GUEST_OP(object):
         if index=='I'or index=='i':
             self.userinformation(id)
         elif index=='A'or index=='a':
-            print('CHANGE PASSWORD=>P')
+            '''print('CHANGE PASSWORD=>P')'''
             print('CHANGE ADDRESS=>A')
             print('CHANGE PHONE NUMBER=>N')
             index2 = input()
