@@ -1,5 +1,7 @@
 
 from datetime import date
+import string
+from this import s
 import pymysql.cursors
 from pymysql import connect
 connection=pymysql.connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
@@ -43,7 +45,7 @@ class GUEST_OP(object):
         print("--------A SHOP--------")
         print("1:Usercenter")
         print("2:Shopping")
-        num = input("Input function number")
+        num = input("Input function number: ")
         if num == "1":
             self.usercenter(id)
         elif num == "2":
@@ -240,6 +242,21 @@ class GUEST_OP(object):
             Exception: print("Fail")
             self.shopping(id)
 
+    def search(self,id):
+        try:
+            string = input('Input the thing for searching: ')
+            stringg = "%"+string+"%"
+            sql = "select * from goods where g_name like %s;"
+            self.cursor.execute(sql,stringg)
+            result = self.cursor.fetchall()
+            for data in result:
+                print(data)
+            print('------>Serching Successful<--------')
+            self.shopping(id)
+        except:
+            Exception: print("Wrong")
+            self.shopping(id) 
+
     def shopping(self,id):
         print('-----------SHOPPING------------')
         print('Search Goods=>S')
@@ -256,8 +273,10 @@ class GUEST_OP(object):
             self.tags(id)
         elif index=='C'or index=='c':
             self.quantity(id)
-        elif index=='O'or index=='':
+        elif index=='O'or index=='o':
             self.order(id)
+        elif index=='S'or index =='s':
+            self.search(id)
         elif index=='H'or index =='h':
             self.function(id)
         elif index=='Q'or index =='q':
