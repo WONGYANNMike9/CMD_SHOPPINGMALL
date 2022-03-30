@@ -1,4 +1,5 @@
 
+from datetime import date
 import pymysql.cursors
 from pymysql import connect
 connection=pymysql.connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
@@ -18,6 +19,8 @@ class GUEST_OP(object):
     def execute_sql(self,sql):
         """执行Sql语句"""
         self.cursor.execute(sql)
+        for temp in self.cursor.fetchall():
+            print(temp)
 
     def login_or_register(self):
         """登陆注册界面"""
@@ -38,10 +41,13 @@ class GUEST_OP(object):
     def function(self,id):
         """功能界面"""
         print("--------A SHOP--------")
-        print("4:USERCENTER")
-        num = input("Input function number：")
-        if num == "4":
+        print("1:Usercenter")
+        print("2:Shopping")
+        num = input("Input function number")
+        if num == "1":
             self.usercenter(id)
+        elif num == "2":
+            self.shopping(id)
 
     """用户处理"""  
     def register(self):
@@ -67,7 +73,6 @@ class GUEST_OP(object):
                 main()
         except: Exception :print("Fail")
         self.cursor.close()
-
     def login(self):
         try:
             cursor = connection.cursor()
@@ -164,10 +169,10 @@ class GUEST_OP(object):
 
     def usercenter(self,id):
         print('-----------USER CENTER------------')
-        print('USER INFORMATION=>I')
-        print('CHANGE USER INFORMATION=>A')
-        print('BACK TO HOMEPAGE=>H')
-        print('QUIT THE SYSTEM=>Q')
+        print('Usr Imformation=>I')
+        print('Change Information=>A')
+        print('Honmepage=>H')
+        print('Quit=>Q')
         index=input()
         if index=='I'or index=='i':
             self.userinformation(id)
@@ -192,14 +197,77 @@ class GUEST_OP(object):
         else:
             print('wrong input')
             self.function(id)
-    
-"""商店处理：显示所有商店和添加商店"""  
-    
-"""库存管理：先选择商店再上架新商品或者进货"""
 
-"""购物"""
 
-"""订单管理"""
+
+
+
+    def goods(self,id):
+        try:
+            sql = 'select * from goods;'
+            self.execute_sql(sql)
+            self.shopping(id)
+        except:
+            Exception: print("Fail")
+            self.shopping(id) 
+    def tags(self,id):
+        try:
+            sql = 'select g_name,tag1,tag2 from goods;'
+            self.execute_sql(sql)
+            self.shopping(id)
+        except:
+            Exception: print("Fail")
+            self.shopping(id)
+    def quantity(self,id):
+        try:
+            sql = 'select g_name,sid,quantity from goods;'
+            self.execute_sql(sql)
+            self.shopping(id)
+        except:
+            Exception: print("Fail")
+            self.shopping(id)
+
+    def order(self,id):
+        try:
+            gid = int(input('Input goods id:'))
+            quantity = int(input('Quantity:'))
+            sql1 = 'insert into order_info values(0,default,%s,%s,%s);'
+            self.cursor.execute(sql1,[gid,id,quantity])
+            self.conn.commit()
+            print('------>Order Placed<--------')
+            self.shopping(id)
+        except:
+            Exception: print("Fail")
+            self.shopping(id)
+
+    def shopping(self,id):
+        print('-----------SHOPPING------------')
+        print('Search Goods=>S')
+        print('Browser Goods=>A')
+        print('Browser Character=>B')
+        print('Browser Quantity=>C')
+        print('Place an Order=>O')
+        print('Canceling Order=>D')
+        print('Quit=>Q')
+        index=input()
+        if index=='A'or index=='a':
+            self.goods(id)
+        elif index=='B'or index=='b':
+            self.tags(id)
+        elif index=='C'or index=='c':
+            self.quantity(id)
+        elif index=='O'or index=='':
+            self.order(id)
+        elif index=='H'or index =='h':
+            self.function(id)
+        elif index=='Q'or index =='q':
+            self.conn.close()
+        else:
+            print('wrong input')
+            self.function(id)
+    
+
+
     
     
     
