@@ -4,13 +4,13 @@ import string
 from this import s
 import pymysql.cursors
 from pymysql import connect
-connection=pymysql.connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+connection=pymysql.connect(host='localhost',port=3306,user='root',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 class GUEST_OP(object):
     
     def __init__(self):
         """连接数据库"""
-        self.conn = connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',cursorclass=pymysql.cursors.DictCursor)
+        self.conn = connect(host='localhost',port=3306,user='root',database='comp7640',cursorclass=pymysql.cursors.DictCursor)
         self.cursor = self.conn.cursor()
     def __del__(self):
         """关闭数据库"""
