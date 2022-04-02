@@ -7,23 +7,20 @@ from pymysql import connect
 connection=pymysql.connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 class GUEST_OP(object):
-    """顾客购物类"""
+    
     def __init__(self):
         """连接数据库"""
         self.conn = connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',cursorclass=pymysql.cursors.DictCursor)
         self.cursor = self.conn.cursor()
-
     def __del__(self):
         """关闭数据库"""
         self.cursor.close()
         self.conn.close()
-
     def execute_sql(self,sql):
         """执行Sql语句"""
         self.cursor.execute(sql)
         for temp in self.cursor.fetchall():
             print(temp)
-
     def login_or_register(self):
         """登陆注册界面"""
         while True:
@@ -38,20 +35,31 @@ class GUEST_OP(object):
                 self.register()
             if num == "3":
                 break
-
-
     def function(self,id):
-        """功能界面"""
-        print("--------A SHOP--------")
-        print("1:Usercenter")
-        print("2:Shopping")
-        num = input("Input function number: ")
-        if num == "1":
-            self.usercenter(id)
-        elif num == "2":
-            self.shopping(id)
+        while True:
+            """功能界面"""
+            print("--------A SHOP--------")
+            print("1:Usercenter")
+            print("2:Shopping")
+            print("3:Shop Management")
+            print("4:Item Management")
+            print("5:Return")
+            print("6:Quit")
+            num = input("Input function number: ")
+            if num == "1":
+                self.usercenter(id)
+            elif num == "2":
+                self.shopping(id)
+            elif num == "3":
+                self.shopmanagement(id)
+            elif num == "4":
+                self.goodsmanagement(id)
+            elif num == "5":
+                self.login_or_register()
+            elif num == "6":
+                break
 
-    """用户处理"""  
+    
     def register(self):
         try:
             c_name = input('input your name: ')
@@ -118,7 +126,6 @@ class GUEST_OP(object):
                 main()
         except: Exception: print("Fail")
         cursor2.close()
-
     def userinformation(self,id):
         try:
             sql = "SELECT cid,c_name,addr,tel FROM customer WHERE cid= %s;"
@@ -131,19 +138,6 @@ class GUEST_OP(object):
             Exception: print("Fail")
             self.usercenter(id)
             self.cursor.close()
-
-    '''def changepw(self,id):
-        newpassword = input("please enter your new password: \n")
-        try:
-            sql = "UPDATE customer SET password= %s WHERE cid=%s"
-            self.cursor.execute(sql, (newpassword, id))
-            print('Password update successful')
-            self.conn.commit()
-            main()
-        except:
-            Exception: print("Fail")
-            self.usercenter(id)
-        self.cursor.close()'''
     def changetel(self,id):
         newtel = int(input("please enter your new telephone: \n"))
         try:
@@ -170,6 +164,7 @@ class GUEST_OP(object):
         self.cursor.close()
 
     def usercenter(self,id):
+        """用户中心"""
         print('-----------USER CENTER------------')
         print('Usr Imformation=>I')
         print('Change Information=>A')
@@ -241,7 +236,6 @@ class GUEST_OP(object):
         except:
             Exception: print("Fail")
             self.shopping(id)
-
     def search(self,id):
         try:
             string = input('Input the thing for searching: ')
@@ -258,6 +252,7 @@ class GUEST_OP(object):
             self.shopping(id) 
 
     def shopping(self,id):
+        """购物"""
         print('-----------SHOPPING------------')
         print('Search Goods=>S')
         print('Browser Goods=>A')
@@ -287,14 +282,81 @@ class GUEST_OP(object):
     
 
 
+
+
+    def shopmanagement(self,id):
+        """查询商家信息"""
+        sql_show = 'select * from shop;'
+        self.cursor.execute(sql_show)
+        allshop = self.cursor.fetchall()
+        for temp in allshop:
+            print(temp)
+        num = input("Information Updateing=>1,Quit=>2: ")
+        if num == "1":
+            """修改商家信息"""
+            print("1:Add new shop")
+            print("2:Delete shop")
+            print("3:Return")
+            select = input("Input number: ")
+            if select == "1":
+                s_name = input('Input shop name: ')
+                location = input('Input shop location: ')
+                rating = input('Input Rating: ')
+                sql_add = 'insert into shop values(0,%s,%s,%s);'
+                self.cursor.execute(sql_add,[s_name,location,rating])
+                self.conn.commit()
+                print('------>Successfully Updated<--------')
+                self.shopmanagement(id)
+            elif select == "2":
+                sid = input('Input Shop Id: ')
+                sql_del = 'delete from shop where sid = %s'
+                self.cursor.execute(sql_del,[sid])
+                self.conn.commit()
+                print('------>Sccusefully Deleted<--------')
+                self.shopmanagement(id)
+            elif num == "3":
+                self.shopmanagement(id)
+        elif num == "2":
+            self.function(id)
     
     
     
     
     
-    
-    
-    
+    def goodsmanagement(self,id):
+        """商品管理"""
+        sql_show = 'select * from goods;'
+        self.cursor.execute(sql_show)
+        allshop = self.cursor.fetchall()
+        for temp in allshop:
+            print(temp)
+        num = input("Information Updateing=>1,Quit=>2: ")
+        if num == "1":
+            print("1:Add new item")
+            print("2:Delete item")
+            print("3:Return")
+            number = input("Input number: ")
+            if number=="1":
+                name = input('Input item name：')
+                sid = int(input('Input Shop id：'))
+                tag1 = input('Input tag1：')
+                tag2 = input('Input tag2：')
+                price = input('Input Price：')
+                quantity = input('Input Quantity：')
+                sql = 'insert into goods values(0,%s,%s,%s,%s,%s,%s);'
+                self.cursor.execute(sql,[name,sid,tag1,tag2,price,quantity])
+                self.conn.commit()
+                print('------>Successfully Updated<--------')
+                self.goodsmanagement(id)
+            elif number=="2":
+                gid = int(input('Input item id：'))
+                sql = 'delete from goods where gid= %s '
+                self.cursor.execute(sql,[gid])
+                self.conn.commit()
+                print('------>Sccusefully Deleted<--------')
+                self.goodsmanagement(id)
+            elif num == "3":
+                self.goodsmanagement(id)
     
     
     
