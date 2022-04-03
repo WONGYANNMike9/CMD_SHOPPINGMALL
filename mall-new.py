@@ -1,15 +1,16 @@
 
 from datetime import date
-import string
+#import string
+#from this import s
 import pymysql.cursors
 from pymysql import connect
-connection=pymysql.connect(host='localhost',port=3306,user='root',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+connection=pymysql.connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 class GUEST_OP(object):
     
     def __init__(self):
         """连接数据库"""
-        self.conn = connect(host='localhost',port=3306,user='root',database='comp7640',cursorclass=pymysql.cursors.DictCursor)
+        self.conn = connect(host='49.235.89.99',port=3306,user='remoteu1',password='190450',database='comp7640',cursorclass=pymysql.cursors.DictCursor)
         self.cursor = self.conn.cursor()
     def __del__(self):
         """关闭数据库"""
@@ -26,14 +27,11 @@ class GUEST_OP(object):
             print("--------Login or Register--------")
             print("1.Login")
             print("2.Register")
-            print("3.Quit")
             num = input('Input Function Number：')
             if num == "1":
                 self.login()
             if num == "2":
                 self.register()
-            if num == "3":
-                break
     def function(self,id):
         while True:
             """功能界面"""
@@ -42,8 +40,7 @@ class GUEST_OP(object):
             print("2:Shopping")
             print("3:Shop Management")
             print("4:Item Management")
-            print("5:Return")
-            print("6:Quit")
+            print("5:Quit")
             num = input("Input function number: ")
             if num == "1":
                 self.usercenter(id)
@@ -55,33 +52,34 @@ class GUEST_OP(object):
                 self.goodsmanagement(id)
             elif num == "5":
                 self.login_or_register()
-            elif num == "6":
-                break
+
 
     
     def register(self):
         try:
+            cursor = connection.cursor()
             c_name = input('input your name: ')
             tel = int(input('input your telephone number: '))
             addr = input('iuput your addres: ')
             password = input('setting your password: ')
             sql = "SELECT COUNT(*) FROM customer WHERE c_name= %s;"
-            self.cursor.execute(sql, c_name)
-            result = self.cursor.fetchall()
+            cursor.execute(sql, c_name)
+            result = cursor.fetchall()
             data = result[0]
             count = data['COUNT(*)']
             if count == 0:
+                cursor2 = connection.cursor()
                 sql = "INSERT INTO customer(c_name,addr,tel,password) VALUES(%s,%s,%s,%s);"
                 values = (c_name, addr, tel, password)
-                self.cursor.execute(sql, values)
-                self.conn.commit()
+                cursor2.execute(sql, values)
+                connection.commit()
                 print('register successful')
                 main()
             else:
                 print('This name was already used, please use other name')
                 main()
         except: Exception :print("Fail")
-        self.cursor.close()
+        cursor.close()
     def login(self):
         try:
             cursor = connection.cursor()
@@ -101,7 +99,6 @@ class GUEST_OP(object):
             result2 = cursor2.fetchall()
             data2 = result2[0]
             count = data2['COUNT(*)']
-            print(count)
             if count == 1:
                 if pw == password:
                     print('login in successfully')
@@ -189,7 +186,7 @@ class GUEST_OP(object):
         elif index=='H'or index =='h':
             self.function(id)
         elif index=='Q'or index =='q':
-            self.conn.close()
+            self.login_or_register()
         else:
             print('wrong input')
             self.function(id)
@@ -225,12 +222,12 @@ class GUEST_OP(object):
 
     def order(self,id):
         try:
-            gid = int(input('Input goods id:'))
+            gid = int(input('Input goods id (gid):'))
             quantity = int(input('Quantity:'))
             sql1 = 'insert into order_info values(0,default,%s,%s,%s);'
             self.cursor.execute(sql1,[gid,id,quantity])
             self.conn.commit()
-            print('------>Order Placed<--------')
+            print('------>Order Placed Successfully<--------')
             self.shopping(id)
         except:
             Exception: print("Fail")
@@ -248,7 +245,65 @@ class GUEST_OP(object):
             self.shopping(id)
         except:
             Exception: print("Wrong")
-            self.shopping(id) 
+            self.shopping(id)
+
+
+    def canceling(self,id):
+        try:
+            sql = "select * from order_info where o_cid=%s;"
+            self.cursor.execute(sql,[id])
+            result = self.cursor.fetchall()
+            print('------>your order<--------')
+            for data in result:
+                print(data)
+            print('------>your order<--------')
+            print('Delete=>D')
+            print('Shopping page=>S')
+            print('Quit=>Q')
+            index = input()
+            if index == 'D' or index == 'd':
+                print('Delete specific order=>input the order id')
+                print('Delete all order=>A')
+                index2=input()
+                if index2.isdigit():
+                    try:
+                        sql2 = "delete from order_info where oid=%s;"
+                        self.cursor.execute(sql2, [index2])
+                        self.conn.commit()
+                        print('delete successfully')
+                    except:
+                        Exception: print("No such order")
+                        self.shopping(id)
+                elif index2=='A' or index2=='a':
+                    try:
+                        sql3 = "delete from order_info where o_cid=%s;"
+                        self.cursor.execute(sql3, [id])
+                        self.conn.commit()
+                        print('delete successfully')
+                        self.shopping(id)
+                    except:
+                        Exception: print("Wrong")
+                        self.shopping(id)
+                else:
+                    print('wrong input')
+                    self.shopping(id)
+            elif index == 'S' or index == 's':
+                self.shopping(id)
+            elif index == 'Q' or index == 'q':
+                self.login_or_register()
+            else:
+                print('wrong input')
+                self.shopping(id)
+
+        except:
+            Exception: print("Wrong")
+            self.shopping(id)
+
+
+
+
+
+
 
     def shopping(self,id):
         """购物"""
@@ -258,7 +313,8 @@ class GUEST_OP(object):
         print('Browser Character=>B')
         print('Browser Quantity=>C')
         print('Place an Order=>O')
-        print('Canceling Order=>D')
+        print('Check or cancel Order=>D')
+        print('Homepage=>H')
         print('Quit=>Q')
         index=input()
         if index=='A'or index=='a':
@@ -273,6 +329,8 @@ class GUEST_OP(object):
             self.search(id)
         elif index=='H'or index =='h':
             self.function(id)
+        elif index=='D'or index =='d':
+            self.canceling(id)
         elif index=='Q'or index =='q':
             self.conn.close()
         else:
@@ -358,23 +416,7 @@ class GUEST_OP(object):
                 self.goodsmanagement(id)
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  
+
 
 def main():
     customer = GUEST_OP()
