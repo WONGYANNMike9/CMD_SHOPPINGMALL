@@ -1,7 +1,6 @@
 
 from datetime import date
 import string
-from this import s
 import pymysql.cursors
 from pymysql import connect
 connection=pymysql.connect(host='localhost',port=3306,user='root',database='comp7640',charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
